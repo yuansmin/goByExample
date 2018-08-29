@@ -20,17 +20,19 @@ func main() {
 	fmt.Println(s.Has(20))
 }
 
+const wordLenght = 64
+
 type IntSet struct {
 	word []uint64
 }
 
 func (s *IntSet) Has(x int) bool {
-	word, bit := x/64, uint(x%64)
+	word, bit := x/wordLenght, uint(x%wordLenght)
 	return len(s.word) > word && s.word[word]&1<<bit != 0
 }
 
 func (s *IntSet) Add(x int) {
-	word, bit := x/64, uint(x%64)
+	word, bit := x/wordLenght, uint(x%wordLenght)
 	for word >= len(s.word) {
 		s.word = append(s.word, 0)
 	}
@@ -55,12 +57,12 @@ func (s *IntSet) String() string {
 			continue
 		}
 
-		for j := 0; j < 64; j++ {
+		for j := 0; j < wordLenght; j++ {
 			if word&(1<<uint(j)) != 0 {
 				if buf.Len() > 1 {
 					buf.WriteByte(' ')
 				}
-				num := i*64 + j
+				num := i*wordLenght + j
 				fmt.Fprintf(&buf, "%d", num)
 			}
 		}
