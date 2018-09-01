@@ -18,12 +18,22 @@ func main() {
 	s.Add(300)
 	fmt.Println(s.String())
 	fmt.Println(s.Has(20))
+	fmt.Printf("length s: %d\n", s.Len())
+	s.Remove(20)
+	fmt.Printf("remove 20: %s\n", &s)
+	s.Add(20)
+	fmt.Printf("copy set: %s\n", s.String())
+	s.Clear()
+	s.AddAll(2, 3, 4)
+	fmt.Printf("AddAll %s\n", s.String())
 }
 
 const wordLenght = 64
 
+type wordType uint64
+
 type IntSet struct {
-	word []uint64
+	word []wordType
 }
 
 func (s *IntSet) Has(x int) bool {
@@ -37,6 +47,12 @@ func (s *IntSet) Add(x int) {
 		s.word = append(s.word, 0)
 	}
 	s.word[word] |= 1 << bit
+}
+
+func (s *IntSet) AddAll(nums ...int) {
+	for _, num := range nums {
+		s.Add(num)
+	}
 }
 
 func (s *IntSet) UnionWith(t *IntSet) {
@@ -69,4 +85,36 @@ func (s *IntSet) String() string {
 	}
 	buf.WriteByte('}')
 	return buf.String()
+}
+
+func (s *IntSet) Len() int {
+	length := 0
+	for w := 0; w < len(s.word); w++ {
+		for bit := 0; bit < wordLenght; bit++ {
+			if s.word[w]&(1<<uint(bit)) != 0 {
+				length++
+			}
+		}
+	}
+	return length
+}
+
+func (s *IntSet) Remove(x int) {
+	word, bit := x/wordLenght, uint(x%wordLenght)
+	if word >= len(s.word) {
+		return
+	}
+	s.word[word] = s.word[word] &^ (1 << bit)
+}
+
+func (s *IntSet) Clear() {
+	for i := 0; i < len(s.word); i++ {
+		s.word[i] = wordType(0)
+	}
+}
+
+func (s *IntSet) Copy() *IntSet {
+	newIntSet := IntSet{}
+	copy(newIntSet.word, s.word)
+	return &newIntSet
 }
